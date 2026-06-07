@@ -23,7 +23,7 @@ class SpaceMission(BaseModel):
     destination: str = Field(..., min_length = 3, max_length = 50)
     launch_date: datetime= Field(default = datetime.now())
     duration_days: int = Field(...,ge = 1, le = 3650)
-    crew: list[CrewMember] = Field(min_length = 1, max_length = 12)
+    crew: list[CrewMember] = Field(..., min_length = 1, max_length = 12)
     mission_status: str = Field(default = "planned")
     budget_millions: float = Field(ge = 1.0, le = 10000.0)
 
@@ -50,7 +50,7 @@ class SpaceMission(BaseModel):
             for crew in self.crew:
                 if crew.years_experience >= 5:
                     experiencedCrew += 1
-            if experiencedCrew < self.crew.count() / 2:
+            if experiencedCrew < len(self.crew) / 2:
                 raise ValueError("Long missions (> 365 days) need 50%% experienced crew (5+ years)")
         return (self)
 
@@ -68,10 +68,10 @@ def displaySpaceMission(spcmss: SpaceMission) -> None:
     print(f"Destination: {spcmss.destination}")
     print(f"Duration: {spcmss.duration_days} days")
     print(f"Budget: ${spcmss.budget_millions}M")
-    print(f"Crew size: {spcmss.crew.count()}")
+    print(f"Crew size: {len(spcmss.crew)}")
     print("Crew members:")
     for crew in spcmss.crew:
-        print(f"- {crew.name} ({crew.rank} - {crew.specialization})")
+        print(f"- {crew.name} ({crew.rank}) - {crew.specialization}")
 
 
 def main() -> None:
@@ -84,7 +84,11 @@ def main() -> None:
             destination = "Mars",
             duration_days = 900,
             budget_millions = 2500.0,
-            crew = [])
+            crew = [
+                CrewMember(member_id = "001", name = "Sarah Connor", rank = "commander", age = 25, specialization = "Mission Command", years_experience = 2, is_active = True),
+                CrewMember(member_id = "002", name = "John Smith", rank = "lieutenant", age = 33, specialization = "Navigation", years_experience = 24, is_active = True),
+                CrewMember(member_id = "003", name = "Alice Johnson", rank = "officer", age = 42, specialization = "Engineering", years_experience = 12, is_active = True),
+            ])
         print("Valid mission created:")
         displaySpaceMission(spaceMission)
         print("")
